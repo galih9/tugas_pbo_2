@@ -4,7 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 
 import javax.swing.JPanel;
+import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 
 import jcharts.JpieCharts;
 import jcharts.JtimeSeries;
@@ -16,17 +18,21 @@ public class DashboardBottomPanel extends JPanel {
         setPreferredSize(new Dimension(800, 300));
         setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        // Pie chart panel with fixed width
+        // Pie chart panel with fixed width, border, and right padding
         JPanel leftPanel = new JPanel(new BorderLayout());
         leftPanel.setPreferredSize(new Dimension(220, 300));
+        leftPanel.setBorder(new CompoundBorder(
+            new LineBorder(java.awt.Color.GRAY, 2, true),
+            new EmptyBorder(0, 0, 0, 0) // right padding 20px
+        ));
         leftPanel.add(pieChart, BorderLayout.CENTER);
 
         // Time series chart panel fills the rest
-        int graphWidth = 700;
-        int graphHeight = 320;
-        int widthForYLabels = 40;
-        int heightForXLabels = 40;
-        int widthForItemLabel = 100;
+        int graphWidth = 900;
+        int graphHeight = 260;
+        int widthForYLabels = 70;
+        int heightForXLabels = 30;
+        int widthForItemLabel = 105;
 
         JtimeSeries timeChart = new JtimeSeries(
             new int[]{graphWidth, graphHeight},
