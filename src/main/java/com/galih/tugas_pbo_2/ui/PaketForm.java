@@ -25,12 +25,15 @@ public class PaketForm extends JFrame {
     private JRadioButton regulerBtn, expressBtn;
     private JButton simpanBtn;
     private Integer editId = null;
+    private final Dashboard dashboard;
 
-    public PaketForm() {
+    public PaketForm(Dashboard dashboard) {
+        this.dashboard = dashboard;
         initComponents();
     }
 
-    public PaketForm(Paket paket) {
+    public PaketForm(Dashboard dashboard, Paket paket) {
+        this.dashboard = dashboard;
         initComponents();
         editId = paket.getId();
         tfPengirim.setText(paket.getPengirim());
@@ -91,7 +94,7 @@ public class PaketForm extends JFrame {
         try {
             service.simpanPaket(paket);
             JOptionPane.showMessageDialog(this, "Paket berhasil disimpan!");
-            
+            dashboard.refreshData(); // Refresh the table
             dispose();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Gagal menyimpan paket: " + ex.getMessage());

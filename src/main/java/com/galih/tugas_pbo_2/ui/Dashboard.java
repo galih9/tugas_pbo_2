@@ -22,7 +22,7 @@ import com.galih.tugas_pbo_2.model.Paket;
 import com.galih.tugas_pbo_2.service.PaketService;
 import com.galih.tugas_pbo_2.service.PaketServiceImpl;
 
-public class Dashboard extends JFrame {
+public final class Dashboard extends JFrame {
     private final JTable table;
     private final DefaultTableModel tableModel;
     private final PaketService paketService;
@@ -37,34 +37,34 @@ public class Dashboard extends JFrame {
 
         paketService = new PaketServiceImpl();
 
-        // Create table with custom model
+        
         String[] columns = {"ID", "Pengirim", "Penerima", "Jenis Barang", "Metode", "Status", "Actions"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 6; // Only allow editing of action column
+                return column == 6; 
             }
         };
         
         table = new JTable(tableModel);
-        table.setRowHeight(40); // Set row height to accommodate buttons better
-        table.getColumnModel().getColumn(0).setMaxWidth(50); // ID column
-        table.getColumnModel().getColumn(6).setMinWidth(150); // Actions column
+        table.setRowHeight(40); 
+        table.getColumnModel().getColumn(0).setMaxWidth(50); 
+        table.getColumnModel().getColumn(6).setMinWidth(150); 
         
-        // Add button column
+        
         TableColumn actionColumn = table.getColumnModel().getColumn(6);
         actionColumn.setCellRenderer(new ButtonRenderer());
         actionColumn.setCellEditor(new ButtonEditor());
         JScrollPane scrollPane = new JScrollPane(table);
         
-        // Create panel for table with margin
+        
         JPanel tablePanel = new JPanel(new BorderLayout());
-        tablePanel.setBorder(new EmptyBorder(10, 10, 10, 10)); // Add 10px margin on all sides
+        tablePanel.setBorder(new EmptyBorder(10, 10, 10, 10)); 
         tablePanel.add(scrollPane, BorderLayout.CENTER);
         
         add(tablePanel, BorderLayout.CENTER);
 
-        // Create button panel
+        
         JPanel buttonPanel = new JPanel();
         refreshBtn = new JButton("Refresh");
         tambahBtn = new JButton("Tambah Paket");
@@ -79,7 +79,7 @@ public class Dashboard extends JFrame {
         refreshData();
     }
 
-    private void refreshData() {
+    public void refreshData() {
         tableModel.setRowCount(0);
         try {
             List<Paket> pakets = paketService.getAllPakets();
@@ -91,7 +91,7 @@ public class Dashboard extends JFrame {
                     paket.getJenisBarang(),
                     paket.getPengiriman().getMetode(),
                     paket.getStatus(),
-                    "actions" // This cell will be replaced with buttons
+                    "actions" 
                 });
             }
         } catch (Exception e) {
@@ -100,9 +100,39 @@ public class Dashboard extends JFrame {
     }
 
     private void showPaketForm() {
-        PaketForm form = new PaketForm();
+        PaketForm form = new PaketForm(this);
         form.setLocationRelativeTo(this);
         form.setVisible(true);
+    }
+
+    private void editPaket(int id) {
+        try {
+            Paket paket = paketService.getPaketById(id);
+            if (paket != null) {
+                PaketForm form = new PaketForm(this, paket);
+                form.setLocationRelativeTo(this);
+                form.setVisible(true);
+                refreshData(); 
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error editing paket: " + e.getMessage());
+        }
+    }
+
+    private void deletePaket(int id) {
+        int confirm = JOptionPane.showConfirmDialog(this,
+            "Are you sure you want to delete this package?",
+            "Confirm Delete",
+            JOptionPane.YES_NO_OPTION);
+            
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                paketService.deletePaket(id);
+                refreshData(); // Refresh the table after deletion
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error deleting paket: " + e.getMessage());
+            }
+        }
     }
 
     class ButtonRenderer extends JPanel implements TableCellRenderer {
@@ -154,36 +184,6 @@ public class Dashboard extends JFrame {
         @Override
         public Object getCellEditorValue() {
             return "actions";
-        }
-    }
-
-    private void editPaket(int id) {
-        try {
-            Paket paket = paketService.getPaketById(id);
-            if (paket != null) {
-                PaketForm form = new PaketForm(paket);
-                form.setLocationRelativeTo(this);
-                form.setVisible(true);
-                refreshData(); // Refresh after edit
-            }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error editing paket: " + e.getMessage());
-        }
-    }
-
-    private void deletePaket(int id) {
-        int confirm = JOptionPane.showConfirmDialog(this,
-            "Are you sure you want to delete this package?",
-            "Confirm Delete",
-            JOptionPane.YES_NO_OPTION);
-            
-        if (confirm == JOptionPane.YES_OPTION) {
-            try {
-                paketService.deletePaket(id);
-                refreshData();
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Error deleting paket: " + e.getMessage());
-            }
         }
     }
 }
