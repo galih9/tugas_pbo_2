@@ -1,5 +1,8 @@
+jcharts/JtimeSeries$MyGraphics.class
 com/galih/tugas_pbo_2/model/ExpressPengiriman.class
 com/galih/tugas_pbo_2/ui/Dashboard$ButtonEditor.class
+jcharts/JpieCharts.class
+jcharts/JtimeSeries.class
 com/galih/tugas_pbo_2/ui/Dashboard.class
 com/galih/tugas_pbo_2/App.class
 com/galih/tugas_pbo_2/service/PaketServiceImpl.class
@@ -12,3 +15,4 @@ com/galih/tugas_pbo_2/model/Pengiriman.class
 com/galih/tugas_pbo_2/service/PaketService.class
 com/galih/tugas_pbo_2/ui/Dashboard$2.class
 com/galih/tugas_pbo_2/model/RegulerPengiriman.class
+jcharts/JpieCharts$MyGraphics.class

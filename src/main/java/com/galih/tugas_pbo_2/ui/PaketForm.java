@@ -40,9 +40,9 @@ public class PaketForm extends JFrame {
 
     public PaketForm(Dashboard dashboard, Paket paket) {
         this.dashboard = dashboard;
-        this.editId = paket.getId(); // Set editId before initializing components
+        this.editId = paket.getId();
         initComponents();
-        
+
         tfPengirim.setText(paket.getPengirim());
         tfPenerima.setText(paket.getPenerima());
         jenisBarangCombo.setSelectedItem(paket.getJenisBarang());
@@ -56,7 +56,7 @@ public class PaketForm extends JFrame {
     }
 
     private void initComponents() {
-        // Initialize all components first
+
         tfPengirim = new JTextField();
         tfPenerima = new JTextField();
         jenisBarangCombo = new JComboBox<>(new String[]{"Dokumen", "Elektronik", "Pakaian"});
@@ -72,16 +72,13 @@ public class PaketForm extends JFrame {
         simpanBtn = new JButton("Simpan Paket");
         simpanBtn.addActionListener(e -> simpanPaket());
 
-        // Set up the frame
         setTitle("Input Paket");
         setSize(400, 300);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        
-        // Set layout after determining if we're in edit mode
+
         int rows = (editId != null) ? 7 : 6;
         setLayout(new GridLayout(rows, 2));
 
-        // Add components
         add(new JLabel("Nama Pengirim:"));
         add(tfPengirim);
         add(new JLabel("Nama Penerima:"));
@@ -91,7 +88,6 @@ public class PaketForm extends JFrame {
         add(regulerBtn);
         add(expressBtn);
 
-        // Only show status dropdown in edit mode
         if (editId != null) {
             add(new JLabel("Status:"));
             add(statusCombo);

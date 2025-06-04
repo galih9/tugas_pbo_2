@@ -24,12 +24,17 @@ import com.galih.tugas_pbo_2.model.Paket;
 import com.galih.tugas_pbo_2.service.PaketService;
 import com.galih.tugas_pbo_2.service.PaketServiceImpl;
 
+import jcharts.JpieCharts;
+
 public final class Dashboard extends JFrame {
+
     private final JTable table;
     private final DefaultTableModel tableModel;
     private final PaketService paketService;
     private final JButton refreshBtn;
     private final JButton tambahBtn;
+    int width = 120;
+    int height = 300;
 
     public Dashboard() {
         setTitle("Dashboard Paket");
@@ -39,21 +44,19 @@ public final class Dashboard extends JFrame {
 
         paketService = new PaketServiceImpl();
 
-        
         String[] columns = {"ID", "Pengirim", "Penerima", "Jenis Barang", "Metode", "Status", "Tanggal Masuk", "Tanggal Keluar", "Actions"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 8; 
+                return column == 8;
             }
         };
-        
+
         table = new JTable(tableModel);
-        table.setRowHeight(40); 
-        table.getColumnModel().getColumn(0).setMaxWidth(50); 
-        table.getColumnModel().getColumn(8).setMinWidth(150); 
-        
-        
+        table.setRowHeight(40);
+        table.getColumnModel().getColumn(0).setMaxWidth(50);
+        table.getColumnModel().getColumn(8).setMinWidth(150);
+
         table.getColumnModel().getColumn(5).setCellRenderer(new javax.swing.table.DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value,
@@ -62,56 +65,79 @@ public final class Dashboard extends JFrame {
                 String status = (String) value;
                 if (status == null) {
                     c.setBackground(table.getBackground());
-                } else switch (status) {
-                    case "Selesai":
-                        c.setBackground(new java.awt.Color(144, 238, 144)); 
-                        break;
-                    case "Sedang dikirim":
-                        c.setBackground(new java.awt.Color(255, 255, 224)); 
-                        break;
-                    case "Menunggu dijemput":
-                        c.setBackground(new java.awt.Color(255, 218, 185)); 
-                        break;
-                    case "Sedang dijemput":
-                        c.setBackground(new java.awt.Color(176, 224, 230)); 
-                        break;
-                    case "Di gudang":
-                        c.setBackground(new java.awt.Color(230, 230, 250)); 
-                        break;
-                    case "Menuju Transit Hub":
-                        c.setBackground(new java.awt.Color(255, 182, 193)); 
-                        break;
-                    case "Menunggu dikirim":
-                        c.setBackground(new java.awt.Color(221, 160, 221)); 
-                        break;
-                    default:
-                        c.setBackground(table.getBackground());
-                        break;
+                } else {
+                    switch (status) {
+                        case "Selesai":
+                            c.setBackground(new java.awt.Color(144, 238, 144));
+                            break;
+                        case "Sedang dikirim":
+                            c.setBackground(new java.awt.Color(255, 255, 224));
+                            break;
+                        case "Menunggu dijemput":
+                            c.setBackground(new java.awt.Color(255, 218, 185));
+                            break;
+                        case "Sedang dijemput":
+                            c.setBackground(new java.awt.Color(176, 224, 230));
+                            break;
+                        case "Di gudang":
+                            c.setBackground(new java.awt.Color(230, 230, 250));
+                            break;
+                        case "Menuju Transit Hub":
+                            c.setBackground(new java.awt.Color(255, 182, 193));
+                            break;
+                        case "Menunggu dikirim":
+                            c.setBackground(new java.awt.Color(221, 160, 221));
+                            break;
+                        default:
+                            c.setBackground(table.getBackground());
+                            break;
+                    }
                 }
                 return c;
             }
         });
-        
+
         TableColumn actionColumn = table.getColumnModel().getColumn(8);
         actionColumn.setCellRenderer(new ButtonRenderer());
         actionColumn.setCellEditor(new ButtonEditor());
         JScrollPane scrollPane = new JScrollPane(table);
-        
-        
-        JPanel tablePanel = new JPanel(new BorderLayout());
-        tablePanel.setBorder(new EmptyBorder(10, 10, 10, 10)); 
-        tablePanel.add(scrollPane, BorderLayout.CENTER);
-        
-        add(tablePanel, BorderLayout.CENTER);
 
-        
+        JPanel tablePanel = new JPanel(new BorderLayout());
+        tablePanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        tablePanel.add(scrollPane, BorderLayout.CENTER);
+
+        // Add empty panel under the table with text
+        JPanel emptyPanel = new JPanel(new BorderLayout());
+        emptyPanel.setPreferredSize(new java.awt.Dimension(800, 300));
+        emptyPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        // create your pie
+        JpieCharts pie = new JpieCharts(
+                new int[]{width, height},
+                new String[]{"intel", "amd", "nvidia", "arm", "risc", "cisc"}, // labels
+                new int[]{180, 90, 90, 23, 10, 30} // data
+        );
+
+        // a JPanel container
+        JPanel p = new JPanel();
+        p.setSize(width, height);
+
+        emptyPanel.add(pie, BorderLayout.NORTH);
+
+        // Create a container panel for table and empty panel
+        JPanel contentPanel = new JPanel(new BorderLayout());
+        contentPanel.add(tablePanel, BorderLayout.CENTER);
+        contentPanel.add(emptyPanel, BorderLayout.SOUTH);
+
+        add(contentPanel, BorderLayout.CENTER);
+
         JPanel buttonPanel = new JPanel();
         refreshBtn = new JButton("Refresh");
         tambahBtn = new JButton("Tambah Paket");
-        
+
         refreshBtn.addActionListener(e -> refreshData());
         tambahBtn.addActionListener(e -> showPaketForm());
-        
+
         buttonPanel.add(refreshBtn);
         buttonPanel.add(tambahBtn);
         add(buttonPanel, BorderLayout.SOUTH);
@@ -132,9 +158,9 @@ public final class Dashboard extends JFrame {
                     paket.getJenisBarang(),
                     paket.getPengiriman().getMetode(),
                     paket.getStatus(),
-                    paket.getTanggalMasuk() != null ? formatter.format(paket.getTanggalMasuk()) : "", 
-                    paket.getTanggalKeluar() != null ? formatter.format(paket.getTanggalKeluar()) : "", 
-                    "actions" 
+                    paket.getTanggalMasuk() != null ? formatter.format(paket.getTanggalMasuk()) : "",
+                    paket.getTanggalKeluar() != null ? formatter.format(paket.getTanggalKeluar()) : "",
+                    "actions"
                 });
             }
         } catch (Exception e) {
@@ -155,7 +181,7 @@ public final class Dashboard extends JFrame {
                 PaketForm form = new PaketForm(this, paket);
                 form.setLocationRelativeTo(this);
                 form.setVisible(true);
-                refreshData(); 
+                refreshData();
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error editing paket: " + e.getMessage());
@@ -164,15 +190,15 @@ public final class Dashboard extends JFrame {
 
     private void deletePaket(int id) {
         int confirm = JOptionPane.showConfirmDialog(this,
-            "Apakah anda yakin ingin menghapus paket ini?",
-            "Konfirmasi Hapus",
-            JOptionPane.YES_NO_OPTION,
-            JOptionPane.WARNING_MESSAGE);
-            
+                "Apakah anda yakin ingin menghapus paket ini?",
+                "Konfirmasi Hapus",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+
         if (confirm == JOptionPane.YES_OPTION) {
             try {
                 paketService.deletePaket(id);
-                refreshData(); 
+                refreshData();
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, "Error deleting paket: " + e.getMessage());
             }
@@ -181,19 +207,19 @@ public final class Dashboard extends JFrame {
 
     private void selesaiPaket(int id) {
         int confirm = JOptionPane.showConfirmDialog(this,
-            "Apakah anda yakin ingin menyelesaikan paket ini?",
-            "Konfirmasi Selesai",
-            JOptionPane.YES_NO_OPTION,
-            JOptionPane.QUESTION_MESSAGE);
-            
+                "Apakah anda yakin ingin menyelesaikan paket ini?",
+                "Konfirmasi Selesai",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+
         if (confirm == JOptionPane.YES_OPTION) {
             try {
                 Paket paket = paketService.getPaketById(id);
                 if (paket != null) {
                     paket.setStatus("Selesai");
-                    paket.setTanggalKeluar(Instant.now()); 
-                    paketService.updatePaket(paket); 
-                    refreshData(); 
+                    paket.setTanggalKeluar(Instant.now());
+                    paketService.updatePaket(paket);
+                    refreshData();
                 }
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, "Error completing paket: " + e.getMessage());
@@ -202,6 +228,7 @@ public final class Dashboard extends JFrame {
     }
 
     class ButtonRenderer extends JPanel implements TableCellRenderer {
+
         private final JButton editBtn = new JButton("Edit");
         private final JButton deleteBtn = new JButton("Delete");
         private final JButton selesaiBtn = new JButton("Selesai");
@@ -221,6 +248,7 @@ public final class Dashboard extends JFrame {
     }
 
     class ButtonEditor extends AbstractCellEditor implements TableCellEditor {
+
         private final JPanel panel = new JPanel();
         private final JButton editBtn = new JButton("Edit");
         private final JButton deleteBtn = new JButton("Delete");
