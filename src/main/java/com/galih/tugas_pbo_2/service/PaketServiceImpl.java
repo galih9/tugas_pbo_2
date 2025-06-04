@@ -17,25 +17,34 @@ public class PaketServiceImpl implements PaketService {
     @Override
     public void simpanPaket(Paket paket) throws Exception {
         try (Connection conn = Database.getConnection()) {
-            String sql = "INSERT INTO paket (pengirim, penerima, jenis_barang, metode_pengiriman, status, tanggal_masuk) VALUES (?, ?, ?, ?, ?, ?)";
+            if (paket.getId() != null) {
+                updatePaket(paket);
+            } else {
+                String sql = "INSERT INTO paket (pengirim, penerima, jenis_barang, metode_pengiriman, status, tanggal_masuk) VALUES (?, ?, ?, ?, ?, ?)";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setString(1, paket.getPengirim());
+                stmt.setString(2, paket.getPenerima());
+                stmt.setString(3, paket.getJenisBarang());
+                stmt.setString(4, paket.getPengiriman().getMetode());
+                stmt.setString(5, paket.getStatus());
+                stmt.setTimestamp(6, java.sql.Timestamp.from(paket.getTanggalMasuk()));
+                stmt.executeUpdate();
+            }
+        }
+    }
+
+    @Override
+    public void updatePaket(Paket paket) throws Exception {
+        try (Connection conn = Database.getConnection()) {
+            String sql = "UPDATE paket SET pengirim=?, penerima=?, jenis_barang=?, metode_pengiriman=?, status=?, tanggal_keluar=? WHERE id=?";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, paket.getPengirim());
             stmt.setString(2, paket.getPenerima());
             stmt.setString(3, paket.getJenisBarang());
             stmt.setString(4, paket.getPengiriman().getMetode());
             stmt.setString(5, paket.getStatus());
-            stmt.setTimestamp(6, java.sql.Timestamp.from(paket.getTanggalMasuk())); // Insert tanggal_masuk
-            stmt.executeUpdate();
-        }
-    }
-
-    @Override
-    public void updateStatus(int id, String status) throws Exception {
-        try (Connection conn = Database.getConnection()) {
-            String sql = "UPDATE paket SET status=? WHERE id=?";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setString(1, status);
-            stmt.setInt(2, id);
+            stmt.setTimestamp(6, paket.getTanggalKeluar() != null ? java.sql.Timestamp.from(paket.getTanggalKeluar()) : null);
+            stmt.setInt(7, paket.getId());
             stmt.executeUpdate();
         }
     }
@@ -110,18 +119,12 @@ public class PaketServiceImpl implements PaketService {
     }
 
     @Override
-    public void updatePaket(Paket paket) throws Exception {
+    public void updateStatus(int id, String status) throws Exception {
         try (Connection conn = Database.getConnection()) {
-            String sql = "UPDATE paket SET pengirim=?, penerima=?, jenis_barang=?, metode_pengiriman=?, status=?, tanggal_masuk=?, tanggal_keluar=? WHERE id=?";
+            String sql = "UPDATE paket SET status=? WHERE id=?";
             PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setString(1, paket.getPengirim());
-            stmt.setString(2, paket.getPenerima());
-            stmt.setString(3, paket.getJenisBarang());
-            stmt.setString(4, paket.getPengiriman().getMetode());
-            stmt.setString(5, paket.getStatus());
-            stmt.setTimestamp(6, java.sql.Timestamp.from(paket.getTanggalMasuk()));
-            stmt.setTimestamp(7, paket.getTanggalKeluar() != null ? java.sql.Timestamp.from(paket.getTanggalKeluar()) : null);
-            stmt.setInt(8, paket.getId());
+            stmt.setString(1, status);
+            stmt.setInt(2, id);
             stmt.executeUpdate();
         }
     }

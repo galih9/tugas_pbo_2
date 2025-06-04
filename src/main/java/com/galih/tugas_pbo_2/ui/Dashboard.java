@@ -53,6 +53,29 @@ public final class Dashboard extends JFrame {
         table.getColumnModel().getColumn(0).setMaxWidth(50); 
         table.getColumnModel().getColumn(8).setMinWidth(150); 
         
+        // Add custom renderer for the Status column (column index 5)
+        table.getColumnModel().getColumn(5).setCellRenderer(new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                String status = (String) value;
+                if (null == status) {
+                    c.setBackground(table.getBackground());
+                } else switch (status) {
+                    case "Selesai":
+                        c.setBackground(new java.awt.Color(144, 238, 144)); // Light green
+                        break;
+                    case "Sedang dikirim":
+                        c.setBackground(new java.awt.Color(255, 255, 224)); // Light yellow
+                        break;
+                    default:
+                        c.setBackground(table.getBackground());
+                        break;
+                }
+                return c;
+            }
+        });
         
         TableColumn actionColumn = table.getColumnModel().getColumn(8);
         actionColumn.setCellRenderer(new ButtonRenderer());

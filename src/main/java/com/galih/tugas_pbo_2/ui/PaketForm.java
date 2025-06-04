@@ -26,6 +26,12 @@ public class PaketForm extends JFrame {
     private JButton simpanBtn;
     private Integer editId = null;
     private final Dashboard dashboard;
+    private JComboBox<String> statusCombo;
+    private final String[] STATUSES = {
+        "Selesai", "Menunggu dijemput", "Sedang dijemput",
+        "Di gudang", "Menuju Transit Hub", "Menunggu dikirim",
+        "Sedang dikirim"
+    };
 
     public PaketForm(Dashboard dashboard) {
         this.dashboard = dashboard;
@@ -34,11 +40,13 @@ public class PaketForm extends JFrame {
 
     public PaketForm(Dashboard dashboard, Paket paket) {
         this.dashboard = dashboard;
+        this.editId = paket.getId(); // Set editId before initializing components
         initComponents();
-        editId = paket.getId();
+        
         tfPengirim.setText(paket.getPengirim());
         tfPenerima.setText(paket.getPenerima());
         jenisBarangCombo.setSelectedItem(paket.getJenisBarang());
+        statusCombo.setSelectedItem(paket.getStatus());
         if (paket.getPengiriman() instanceof ExpressPengiriman) {
             expressBtn.setSelected(true);
         } else {
@@ -48,14 +56,11 @@ public class PaketForm extends JFrame {
     }
 
     private void initComponents() {
-        setTitle("Input Paket");
-        setSize(400, 300);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setLayout(new GridLayout(6, 2));
-
+        // Initialize all components first
         tfPengirim = new JTextField();
         tfPenerima = new JTextField();
         jenisBarangCombo = new JComboBox<>(new String[]{"Dokumen", "Elektronik", "Pakaian"});
+        statusCombo = new JComboBox<>(STATUSES);
 
         regulerBtn = new JRadioButton("Reguler");
         expressBtn = new JRadioButton("Express");
@@ -67,6 +72,16 @@ public class PaketForm extends JFrame {
         simpanBtn = new JButton("Simpan Paket");
         simpanBtn.addActionListener(e -> simpanPaket());
 
+        // Set up the frame
+        setTitle("Input Paket");
+        setSize(400, 300);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        
+        // Set layout after determining if we're in edit mode
+        int rows = (editId != null) ? 7 : 6;
+        setLayout(new GridLayout(rows, 2));
+
+        // Add components
         add(new JLabel("Nama Pengirim:"));
         add(tfPengirim);
         add(new JLabel("Nama Penerima:"));
@@ -75,6 +90,13 @@ public class PaketForm extends JFrame {
         add(jenisBarangCombo);
         add(regulerBtn);
         add(expressBtn);
+
+        // Only show status dropdown in edit mode
+        if (editId != null) {
+            add(new JLabel("Status:"));
+            add(statusCombo);
+        }
+
         add(new JLabel(""));
         add(simpanBtn);
     }
@@ -88,13 +110,14 @@ public class PaketForm extends JFrame {
         Paket paket = new Paket(pengirim, penerima, jenisBarang, pengiriman);
         if (editId != null) {
             paket.setId(editId);
+            paket.setStatus((String) statusCombo.getSelectedItem());
         }
         PaketService service = new PaketServiceImpl();
 
         try {
             service.simpanPaket(paket);
             JOptionPane.showMessageDialog(this, "Paket berhasil disimpan!");
-            dashboard.refreshData(); // Refresh the table
+            dashboard.refreshData();
             dispose();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Gagal menyimpan paket: " + ex.getMessage());

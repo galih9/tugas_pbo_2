@@ -10,4 +10,5 @@ com/galih/tugas_pbo_2/ui/Dashboard$1.class
 com/galih/tugas_pbo_2/model/Paket.class
 com/galih/tugas_pbo_2/model/Pengiriman.class
 com/galih/tugas_pbo_2/service/PaketService.class
+com/galih/tugas_pbo_2/ui/Dashboard$2.class
 com/galih/tugas_pbo_2/model/RegulerPengiriman.class
