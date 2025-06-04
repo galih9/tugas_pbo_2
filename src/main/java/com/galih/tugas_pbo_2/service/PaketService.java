@@ -10,4 +10,5 @@ public interface PaketService {
     List<Paket> getAllPakets() throws Exception;
     void deletePaket(int id) throws Exception;
     Paket getPaketById(int id) throws Exception;
+    void updatePaket(Paket paket) throws Exception;
 }

@@ -3,6 +3,7 @@ package com.galih.tugas_pbo_2.service;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,13 +17,14 @@ public class PaketServiceImpl implements PaketService {
     @Override
     public void simpanPaket(Paket paket) throws Exception {
         try (Connection conn = Database.getConnection()) {
-            String sql = "INSERT INTO paket (pengirim, penerima, jenis_barang, metode_pengiriman, status) VALUES (?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO paket (pengirim, penerima, jenis_barang, metode_pengiriman, status, tanggal_masuk) VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, paket.getPengirim());
             stmt.setString(2, paket.getPenerima());
             stmt.setString(3, paket.getJenisBarang());
             stmt.setString(4, paket.getPengiriman().getMetode());
             stmt.setString(5, paket.getStatus());
+            stmt.setTimestamp(6, java.sql.Timestamp.from(paket.getTanggalMasuk())); // Insert tanggal_masuk
             stmt.executeUpdate();
         }
     }
@@ -56,8 +58,19 @@ public class PaketServiceImpl implements PaketService {
                 );
                 paket.setId(rs.getInt("id"));
                 paket.setStatus(rs.getString("status"));
+                
+                // Handle timestamps without throwing exceptions
+                java.sql.Timestamp tanggalMasuk = rs.getTimestamp("tanggal_masuk");
+                java.sql.Timestamp tanggalKeluar = rs.getTimestamp("tanggal_keluar");
+                
+                // Set the timestamps, null is allowed
+                paket.setTanggalMasuk(tanggalMasuk != null ? tanggalMasuk.toInstant() : null);
+                paket.setTanggalKeluar(tanggalKeluar != null ? tanggalKeluar.toInstant() : null);
+                
                 pakets.add(paket);
             }
+        } catch (SQLException e) {
+            throw new Exception("Error loading data: " + e.getMessage());
         }
         return pakets;
     }
@@ -93,6 +106,23 @@ public class PaketServiceImpl implements PaketService {
                 return paket;
             }
             return null;
+        }
+    }
+
+    @Override
+    public void updatePaket(Paket paket) throws Exception {
+        try (Connection conn = Database.getConnection()) {
+            String sql = "UPDATE paket SET pengirim=?, penerima=?, jenis_barang=?, metode_pengiriman=?, status=?, tanggal_masuk=?, tanggal_keluar=? WHERE id=?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, paket.getPengirim());
+            stmt.setString(2, paket.getPenerima());
+            stmt.setString(3, paket.getJenisBarang());
+            stmt.setString(4, paket.getPengiriman().getMetode());
+            stmt.setString(5, paket.getStatus());
+            stmt.setTimestamp(6, java.sql.Timestamp.from(paket.getTanggalMasuk()));
+            stmt.setTimestamp(7, paket.getTanggalKeluar() != null ? java.sql.Timestamp.from(paket.getTanggalKeluar()) : null);
+            stmt.setInt(8, paket.getId());
+            stmt.executeUpdate();
         }
     }
 }

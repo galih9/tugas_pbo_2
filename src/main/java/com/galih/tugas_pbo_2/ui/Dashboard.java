@@ -3,6 +3,8 @@ package com.galih.tugas_pbo_2.ui;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import javax.swing.AbstractCellEditor;
@@ -38,21 +40,21 @@ public final class Dashboard extends JFrame {
         paketService = new PaketServiceImpl();
 
         
-        String[] columns = {"ID", "Pengirim", "Penerima", "Jenis Barang", "Metode", "Status", "Actions"};
+        String[] columns = {"ID", "Pengirim", "Penerima", "Jenis Barang", "Metode", "Status", "Tanggal Masuk", "Tanggal Keluar", "Actions"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 6; 
+                return column == 8; 
             }
         };
         
         table = new JTable(tableModel);
         table.setRowHeight(40); 
         table.getColumnModel().getColumn(0).setMaxWidth(50); 
-        table.getColumnModel().getColumn(6).setMinWidth(150); 
+        table.getColumnModel().getColumn(8).setMinWidth(150); 
         
         
-        TableColumn actionColumn = table.getColumnModel().getColumn(6);
+        TableColumn actionColumn = table.getColumnModel().getColumn(8);
         actionColumn.setCellRenderer(new ButtonRenderer());
         actionColumn.setCellEditor(new ButtonEditor());
         JScrollPane scrollPane = new JScrollPane(table);
@@ -83,6 +85,7 @@ public final class Dashboard extends JFrame {
         tableModel.setRowCount(0);
         try {
             List<Paket> pakets = paketService.getAllPakets();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(java.time.ZoneId.systemDefault());
             for (Paket paket : pakets) {
                 tableModel.addRow(new Object[]{
                     paket.getId(),
@@ -91,6 +94,8 @@ public final class Dashboard extends JFrame {
                     paket.getJenisBarang(),
                     paket.getPengiriman().getMetode(),
                     paket.getStatus(),
+                    paket.getTanggalMasuk() != null ? formatter.format(paket.getTanggalMasuk()) : "", // Return empty string if null
+                    paket.getTanggalKeluar() != null ? formatter.format(paket.getTanggalKeluar()) : "", // Return empty string if null
                     "actions" 
                 });
             }
@@ -121,9 +126,10 @@ public final class Dashboard extends JFrame {
 
     private void deletePaket(int id) {
         int confirm = JOptionPane.showConfirmDialog(this,
-            "Are you sure you want to delete this package?",
-            "Confirm Delete",
-            JOptionPane.YES_NO_OPTION);
+            "Apakah anda yakin ingin menghapus paket ini?",
+            "Konfirmasi Hapus",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.WARNING_MESSAGE);
             
         if (confirm == JOptionPane.YES_OPTION) {
             try {
@@ -135,14 +141,38 @@ public final class Dashboard extends JFrame {
         }
     }
 
+    private void selesaiPaket(int id) {
+        int confirm = JOptionPane.showConfirmDialog(this,
+            "Apakah anda yakin ingin menyelesaikan paket ini?",
+            "Konfirmasi Selesai",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE);
+            
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                Paket paket = paketService.getPaketById(id);
+                if (paket != null) {
+                    paket.setStatus("Selesai");
+                    paket.setTanggalKeluar(Instant.now()); // Set current time using Instant
+                    paketService.updatePaket(paket); // Update the database with the new status and tanggal_keluar
+                    refreshData(); // Refresh the table after updating
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error completing paket: " + e.getMessage());
+            }
+        }
+    }
+
     class ButtonRenderer extends JPanel implements TableCellRenderer {
         private final JButton editBtn = new JButton("Edit");
         private final JButton deleteBtn = new JButton("Delete");
+        private final JButton selesaiBtn = new JButton("Selesai");
 
         public ButtonRenderer() {
             setLayout(new FlowLayout(FlowLayout.CENTER, 5, 0));
             add(editBtn);
             add(deleteBtn);
+            add(selesaiBtn);
         }
 
         @Override
@@ -156,11 +186,13 @@ public final class Dashboard extends JFrame {
         private final JPanel panel = new JPanel();
         private final JButton editBtn = new JButton("Edit");
         private final JButton deleteBtn = new JButton("Delete");
+        private final JButton selesaiBtn = new JButton("Selesai");
 
         public ButtonEditor() {
             panel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 0));
             panel.add(editBtn);
             panel.add(deleteBtn);
+            panel.add(selesaiBtn);
 
             editBtn.addActionListener(e -> {
                 int row = table.getSelectedRow();
@@ -172,6 +204,12 @@ public final class Dashboard extends JFrame {
                 int row = table.getSelectedRow();
                 int id = (Integer) table.getValueAt(row, 0);
                 deletePaket(id);
+            });
+
+            selesaiBtn.addActionListener(e -> {
+                int row = table.getSelectedRow();
+                int id = (Integer) table.getValueAt(row, 0);
+                selesaiPaket(id);
             });
         }
 
