@@ -1,6 +1,7 @@
 package com.galih.tugas_pbo_2.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.time.Instant;
@@ -33,8 +34,9 @@ public final class Dashboard extends JFrame {
     private final PaketService paketService;
     private final JButton refreshBtn;
     private final JButton tambahBtn;
-    int width = 120;
+    int width = 220;
     int height = 300;
+    private final JpieCharts pie; // Add this field
 
     public Dashboard() {
         setTitle("Dashboard Paket");
@@ -111,11 +113,26 @@ public final class Dashboard extends JFrame {
         emptyPanel.setPreferredSize(new java.awt.Dimension(800, 300));
         emptyPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        // create your pie
-        JpieCharts pie = new JpieCharts(
-                new int[]{width, height},
-                new String[]{"intel", "amd", "nvidia", "arm", "risc", "cisc"}, // labels
-                new int[]{180, 90, 90, 23, 10, 30} // data
+        // create your pie with matching colors
+        Color[] statusColors = new Color[]{
+            new Color(144, 238, 144), // Selesai - Light green
+            new Color(255, 218, 185), // Menunggu dijemput - Peach
+            new Color(176, 224, 230), // Sedang dijemput - Light blue
+            new Color(230, 230, 250), // Di gudang - Lavender
+            new Color(255, 182, 193), // Menuju Transit Hub - Light pink
+            new Color(221, 160, 221), // Menunggu dikirim - Plum
+            new Color(255, 255, 224)  // Sedang dikirim - Light yellow
+        };
+
+        pie = new JpieCharts(
+            new int[]{width, height},
+            new String[]{
+                "Selesai", "Menunggu dijemput", "Sedang dijemput",
+                "Di gudang", "Menuju Transit Hub", "Menunggu dikirim",
+                "Sedang dikirim"
+            },
+            new int[7], // Initially empty data
+            statusColors // Add the colors
         );
 
         // a JPanel container
@@ -145,6 +162,27 @@ public final class Dashboard extends JFrame {
         refreshData();
     }
 
+    // Add method to count packages by status
+    private int[] countPackagesByStatus() {
+        int[] counts = new int[7]; // One count for each status
+        String[] statuses = {
+            "Selesai", "Menunggu dijemput", "Sedang dijemput",
+            "Di gudang", "Menuju Transit Hub", "Menunggu dikirim",
+            "Sedang dikirim"
+        };
+        
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            String status = (String) tableModel.getValueAt(i, 5); // Status is in column 5
+            for (int j = 0; j < statuses.length; j++) {
+                if (statuses[j].equals(status)) {
+                    counts[j]++;
+                    break;
+                }
+            }
+        }
+        return counts;
+    }
+
     public void refreshData() {
         tableModel.setRowCount(0);
         try {
@@ -163,6 +201,11 @@ public final class Dashboard extends JFrame {
                     "actions"
                 });
             }
+
+            // Update pie chart with new data
+            int[] statusCounts = countPackagesByStatus();
+            pie.updateData(statusCounts);
+            
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error loading data: " + e.getMessage());
         }
