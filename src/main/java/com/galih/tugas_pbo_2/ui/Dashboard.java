@@ -53,21 +53,36 @@ public final class Dashboard extends JFrame {
         table.getColumnModel().getColumn(0).setMaxWidth(50); 
         table.getColumnModel().getColumn(8).setMinWidth(150); 
         
-        // Add custom renderer for the Status column (column index 5)
+        
         table.getColumnModel().getColumn(5).setCellRenderer(new javax.swing.table.DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value,
                     boolean isSelected, boolean hasFocus, int row, int column) {
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 String status = (String) value;
-                if (null == status) {
+                if (status == null) {
                     c.setBackground(table.getBackground());
                 } else switch (status) {
                     case "Selesai":
-                        c.setBackground(new java.awt.Color(144, 238, 144)); // Light green
+                        c.setBackground(new java.awt.Color(144, 238, 144)); 
                         break;
                     case "Sedang dikirim":
-                        c.setBackground(new java.awt.Color(255, 255, 224)); // Light yellow
+                        c.setBackground(new java.awt.Color(255, 255, 224)); 
+                        break;
+                    case "Menunggu dijemput":
+                        c.setBackground(new java.awt.Color(255, 218, 185)); 
+                        break;
+                    case "Sedang dijemput":
+                        c.setBackground(new java.awt.Color(176, 224, 230)); 
+                        break;
+                    case "Di gudang":
+                        c.setBackground(new java.awt.Color(230, 230, 250)); 
+                        break;
+                    case "Menuju Transit Hub":
+                        c.setBackground(new java.awt.Color(255, 182, 193)); 
+                        break;
+                    case "Menunggu dikirim":
+                        c.setBackground(new java.awt.Color(221, 160, 221)); 
                         break;
                     default:
                         c.setBackground(table.getBackground());
@@ -117,8 +132,8 @@ public final class Dashboard extends JFrame {
                     paket.getJenisBarang(),
                     paket.getPengiriman().getMetode(),
                     paket.getStatus(),
-                    paket.getTanggalMasuk() != null ? formatter.format(paket.getTanggalMasuk()) : "", // Return empty string if null
-                    paket.getTanggalKeluar() != null ? formatter.format(paket.getTanggalKeluar()) : "", // Return empty string if null
+                    paket.getTanggalMasuk() != null ? formatter.format(paket.getTanggalMasuk()) : "", 
+                    paket.getTanggalKeluar() != null ? formatter.format(paket.getTanggalKeluar()) : "", 
                     "actions" 
                 });
             }
@@ -157,7 +172,7 @@ public final class Dashboard extends JFrame {
         if (confirm == JOptionPane.YES_OPTION) {
             try {
                 paketService.deletePaket(id);
-                refreshData(); // Refresh the table after deletion
+                refreshData(); 
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, "Error deleting paket: " + e.getMessage());
             }
@@ -176,9 +191,9 @@ public final class Dashboard extends JFrame {
                 Paket paket = paketService.getPaketById(id);
                 if (paket != null) {
                     paket.setStatus("Selesai");
-                    paket.setTanggalKeluar(Instant.now()); // Set current time using Instant
-                    paketService.updatePaket(paket); // Update the database with the new status and tanggal_keluar
-                    refreshData(); // Refresh the table after updating
+                    paket.setTanggalKeluar(Instant.now()); 
+                    paketService.updatePaket(paket); 
+                    refreshData(); 
                 }
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, "Error completing paket: " + e.getMessage());
