@@ -1,7 +1,6 @@
 package com.galih.tugas_pbo_2.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.time.Instant;
@@ -16,6 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -28,15 +28,13 @@ import com.galih.tugas_pbo_2.service.PaketServiceImpl;
 import jcharts.JpieCharts;
 
 public final class Dashboard extends JFrame {
-
     private final JTable table;
     private final DefaultTableModel tableModel;
     private final PaketService paketService;
-    private final JButton refreshBtn;
-    private final JButton tambahBtn;
-    int width = 220;
-    int height = 300;
-    private final JpieCharts pie; // Add this field
+    private JButton refreshBtn;
+    private JButton tambahBtn;
+    private final JpieCharts pie;
+    private final DashboardBottomPanel bottomPanel;
 
     public Dashboard() {
         setTitle("Dashboard Paket");
@@ -46,141 +44,77 @@ public final class Dashboard extends JFrame {
 
         paketService = new PaketServiceImpl();
 
+        tableModel = createTableModel();
+        table = createTable();
+        pie = createPieChart();
+        bottomPanel = new DashboardBottomPanel(pie);
+
+        add(createTablePanel(), BorderLayout.CENTER);
+        add(bottomPanel, BorderLayout.SOUTH);
+        add(createButtonPanel(), BorderLayout.NORTH);
+
+        refreshData();
+    }
+
+    private DefaultTableModel createTableModel() {
         String[] columns = {"ID", "Pengirim", "Penerima", "Jenis Barang", "Metode", "Status", "Tanggal Masuk", "Tanggal Keluar", "Actions"};
-        tableModel = new DefaultTableModel(columns, 0) {
+        return new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return column == 8;
             }
         };
+    }
 
-        table = new JTable(tableModel);
-        table.setRowHeight(40);
-        table.getColumnModel().getColumn(0).setMaxWidth(50);
-        table.getColumnModel().getColumn(8).setMinWidth(150);
+    private JTable createTable() {
+        JTable localTable = new JTable(tableModel);
+        localTable.setRowHeight(40);
+        localTable.getColumnModel().getColumn(0).setMaxWidth(50);
+        localTable.getColumnModel().getColumn(8).setMinWidth(150);
+        localTable.getColumnModel().getColumn(5).setCellRenderer(createStatusRenderer());
+        TableColumn actionColumn = localTable.getColumnModel().getColumn(8);
+        actionColumn.setCellRenderer(new ButtonRenderer());
+        actionColumn.setCellEditor(new ButtonEditor());
+        return localTable;
+    }
 
-        table.getColumnModel().getColumn(5).setCellRenderer(new javax.swing.table.DefaultTableCellRenderer() {
+    private TableCellRenderer createStatusRenderer() {
+        return new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value,
                     boolean isSelected, boolean hasFocus, int row, int column) {
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                String status = (String) value;
-                if (status == null) {
-                    c.setBackground(table.getBackground());
-                } else {
-                    switch (status) {
-                        case "Selesai":
-                            c.setBackground(new java.awt.Color(144, 238, 144));
-                            break;
-                        case "Sedang dikirim":
-                            c.setBackground(new java.awt.Color(255, 255, 224));
-                            break;
-                        case "Menunggu dijemput":
-                            c.setBackground(new java.awt.Color(255, 218, 185));
-                            break;
-                        case "Sedang dijemput":
-                            c.setBackground(new java.awt.Color(176, 224, 230));
-                            break;
-                        case "Di gudang":
-                            c.setBackground(new java.awt.Color(230, 230, 250));
-                            break;
-                        case "Menuju Transit Hub":
-                            c.setBackground(new java.awt.Color(255, 182, 193));
-                            break;
-                        case "Menunggu dikirim":
-                            c.setBackground(new java.awt.Color(221, 160, 221));
-                            break;
-                        default:
-                            c.setBackground(table.getBackground());
-                            break;
-                    }
-                }
+                c.setBackground(StatusColorUtil.getStatusColor((String) value));
                 return c;
             }
-        });
+        };
+    }
 
-        TableColumn actionColumn = table.getColumnModel().getColumn(8);
-        actionColumn.setCellRenderer(new ButtonRenderer());
-        actionColumn.setCellEditor(new ButtonEditor());
-        JScrollPane scrollPane = new JScrollPane(table);
+    private JpieCharts createPieChart() {
+        return new JpieCharts(
+            new int[]{190, 320},
+            StatusConstants.STATUS_LABELS,
+            new int[StatusConstants.STATUS_LABELS.length],
+            StatusColorUtil.STATUS_COLORS
+        );
+    }
 
+    private JPanel createTablePanel() {
         JPanel tablePanel = new JPanel(new BorderLayout());
         tablePanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-        tablePanel.add(scrollPane, BorderLayout.CENTER);
+        tablePanel.add(new JScrollPane(table), BorderLayout.CENTER);
+        return tablePanel;
+    }
 
-        // Add empty panel under the table with text
-        JPanel emptyPanel = new JPanel(new BorderLayout());
-        emptyPanel.setPreferredSize(new java.awt.Dimension(800, 300));
-        emptyPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-
-        // create your pie with matching colors
-        Color[] statusColors = new Color[]{
-            new Color(144, 238, 144), // Selesai - Light green
-            new Color(255, 218, 185), // Menunggu dijemput - Peach
-            new Color(176, 224, 230), // Sedang dijemput - Light blue
-            new Color(230, 230, 250), // Di gudang - Lavender
-            new Color(255, 182, 193), // Menuju Transit Hub - Light pink
-            new Color(221, 160, 221), // Menunggu dikirim - Plum
-            new Color(255, 255, 224)  // Sedang dikirim - Light yellow
-        };
-
-        pie = new JpieCharts(
-            new int[]{width, height},
-            new String[]{
-                "Selesai", "Menunggu dijemput", "Sedang dijemput",
-                "Di gudang", "Menuju Transit Hub", "Menunggu dikirim",
-                "Sedang dikirim"
-            },
-            new int[7], // Initially empty data
-            statusColors // Add the colors
-        );
-
-        // a JPanel container
-        JPanel p = new JPanel();
-        p.setSize(width, height);
-
-        emptyPanel.add(pie, BorderLayout.NORTH);
-
-        // Create a container panel for table and empty panel
-        JPanel contentPanel = new JPanel(new BorderLayout());
-        contentPanel.add(tablePanel, BorderLayout.CENTER);
-        contentPanel.add(emptyPanel, BorderLayout.SOUTH);
-
-        add(contentPanel, BorderLayout.CENTER);
-
+    private JPanel createButtonPanel() {
         JPanel buttonPanel = new JPanel();
         refreshBtn = new JButton("Refresh");
         tambahBtn = new JButton("Tambah Paket");
-
         refreshBtn.addActionListener(e -> refreshData());
         tambahBtn.addActionListener(e -> showPaketForm());
-
         buttonPanel.add(refreshBtn);
         buttonPanel.add(tambahBtn);
-        add(buttonPanel, BorderLayout.SOUTH);
-
-        refreshData();
-    }
-
-    // Add method to count packages by status
-    private int[] countPackagesByStatus() {
-        int[] counts = new int[7]; // One count for each status
-        String[] statuses = {
-            "Selesai", "Menunggu dijemput", "Sedang dijemput",
-            "Di gudang", "Menuju Transit Hub", "Menunggu dikirim",
-            "Sedang dikirim"
-        };
-        
-        for (int i = 0; i < tableModel.getRowCount(); i++) {
-            String status = (String) tableModel.getValueAt(i, 5); // Status is in column 5
-            for (int j = 0; j < statuses.length; j++) {
-                if (statuses[j].equals(status)) {
-                    counts[j]++;
-                    break;
-                }
-            }
-        }
-        return counts;
+        return buttonPanel;
     }
 
     public void refreshData() {
@@ -201,14 +135,24 @@ public final class Dashboard extends JFrame {
                     "actions"
                 });
             }
-
-            // Update pie chart with new data
-            int[] statusCounts = countPackagesByStatus();
-            pie.updateData(statusCounts);
-            
+            pie.updateData(countPackagesByStatus());
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error loading data: " + e.getMessage());
         }
+    }
+
+    private int[] countPackagesByStatus() {
+        int[] counts = new int[StatusConstants.STATUS_LABELS.length];
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            String status = (String) tableModel.getValueAt(i, 5);
+            for (int j = 0; j < StatusConstants.STATUS_LABELS.length; j++) {
+                if (StatusConstants.STATUS_LABELS[j].equals(status)) {
+                    counts[j]++;
+                    break;
+                }
+            }
+        }
+        return counts;
     }
 
     private void showPaketForm() {
@@ -271,7 +215,6 @@ public final class Dashboard extends JFrame {
     }
 
     class ButtonRenderer extends JPanel implements TableCellRenderer {
-
         private final JButton editBtn = new JButton("Edit");
         private final JButton deleteBtn = new JButton("Delete");
         private final JButton selesaiBtn = new JButton("Selesai");
@@ -291,7 +234,6 @@ public final class Dashboard extends JFrame {
     }
 
     class ButtonEditor extends AbstractCellEditor implements TableCellEditor {
-
         private final JPanel panel = new JPanel();
         private final JButton editBtn = new JButton("Edit");
         private final JButton deleteBtn = new JButton("Delete");

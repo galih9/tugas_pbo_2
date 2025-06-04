@@ -1,8 +1,16 @@
 package jcharts;
 
-import java.awt.*;
-import javax.swing.*;
-import java.util.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.util.Random;
+
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
 
 public class JtimeSeries extends JPanel
 {
@@ -194,8 +202,6 @@ public class JtimeSeries extends JPanel
             g2d.drawLine(xAdjPlc,0,xAdjPlc,graphHeight);
             g2d.drawLine(xAdjPlc,graphHeight,graphWidth+xAdjPlc,graphHeight);
             g2d.drawLine(graphWidth+xAdjPlc,0,graphWidth+xAdjPlc,graphHeight);
-
-            System.out.println("paint()");
 
             int[] xLabelsPos = new int[xlabels.length];
             g2d.setColor(new Color(rand(0,150),rand(0,150),rand(0,150))); // random color
