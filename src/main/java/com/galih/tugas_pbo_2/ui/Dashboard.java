@@ -1,4 +1,4 @@
-package com.example.ui;
+package com.galih.tugas_pbo_2.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -18,9 +18,9 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
-import com.example.model.Paket;
-import com.example.service.PaketService;
-import com.example.service.PaketServiceImpl;
+import com.galih.tugas_pbo_2.model.Paket;
+import com.galih.tugas_pbo_2.service.PaketService;
+import com.galih.tugas_pbo_2.service.PaketServiceImpl;
 
 public class Dashboard extends JFrame {
     private final JTable table;

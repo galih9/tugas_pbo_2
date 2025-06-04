@@ -1,4 +1,4 @@
-package com.example.ui;
+package com.galih.tugas_pbo_2.ui;
 
 import java.awt.GridLayout;
 
@@ -11,12 +11,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
-import com.example.model.ExpressPengiriman;
-import com.example.model.Paket;
-import com.example.model.Pengiriman;
-import com.example.model.RegulerPengiriman;
-import com.example.service.PaketService;
-import com.example.service.PaketServiceImpl;
+import com.galih.tugas_pbo_2.model.ExpressPengiriman;
+import com.galih.tugas_pbo_2.model.Paket;
+import com.galih.tugas_pbo_2.model.Pengiriman;
+import com.galih.tugas_pbo_2.model.RegulerPengiriman;
+import com.galih.tugas_pbo_2.service.PaketService;
+import com.galih.tugas_pbo_2.service.PaketServiceImpl;
 
 public class PaketForm extends JFrame {
 

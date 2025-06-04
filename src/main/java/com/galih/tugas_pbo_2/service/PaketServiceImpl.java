@@ -1,4 +1,4 @@
-package com.example.service;
+package com.galih.tugas_pbo_2.service;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -6,10 +6,10 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.db.Database;
-import com.example.model.ExpressPengiriman;
-import com.example.model.Paket;
-import com.example.model.RegulerPengiriman;
+import com.galih.tugas_pbo_2.db.Database;
+import com.galih.tugas_pbo_2.model.ExpressPengiriman;
+import com.galih.tugas_pbo_2.model.Paket;
+import com.galih.tugas_pbo_2.model.RegulerPengiriman;
 
 public class PaketServiceImpl implements PaketService {
 

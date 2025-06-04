@@ -1,4 +1,4 @@
-package com.example.db;
+package com.galih.tugas_pbo_2.db;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

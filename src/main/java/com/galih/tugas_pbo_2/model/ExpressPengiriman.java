@@ -1,4 +1,4 @@
-package com.example.model;
+package com.galih.tugas_pbo_2.model;
 
 public class ExpressPengiriman extends Pengiriman {
     @Override

@@ -1,8 +1,8 @@
-package com.example.service;
+package com.galih.tugas_pbo_2.service;
 
 import java.util.List;
 
-import com.example.model.Paket;
+import com.galih.tugas_pbo_2.model.Paket;
 
 public interface PaketService {
     void simpanPaket(Paket paket) throws Exception;
