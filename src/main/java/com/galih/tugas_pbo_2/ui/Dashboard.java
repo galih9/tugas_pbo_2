@@ -272,8 +272,10 @@ public final class Dashboard extends JFrame {
 
         public ButtonRenderer() {
             setLayout(new FlowLayout(FlowLayout.CENTER, 5, 0));
-            add(editBtn);
-            add(deleteBtn);
+            if ("admin".equals(loggedInUser.getTugas().toLowerCase())) {
+                add(editBtn);
+                add(deleteBtn);
+            }
             add(selesaiBtn);
         }
 
@@ -293,22 +295,23 @@ public final class Dashboard extends JFrame {
 
         public ButtonEditor() {
             panel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 0));
-            panel.add(editBtn);
-            panel.add(deleteBtn);
+            if ("admin".equals(loggedInUser.getTugas().toLowerCase())) {
+                panel.add(editBtn);
+                editBtn.addActionListener(e -> {
+                    int row = table.getSelectedRow();
+                    int id = (Integer) table.getValueAt(row, 0);
+                    editPaket(id);
+                });
+                panel.add(deleteBtn);
+                deleteBtn.addActionListener(e -> {
+                    int row = table.getSelectedRow();
+                    int id = (Integer) table.getValueAt(row, 0);
+                    deletePaket(id);
+                    deletePaket(id);
+                });
+            }
+
             panel.add(selesaiBtn);
-
-            editBtn.addActionListener(e -> {
-                int row = table.getSelectedRow();
-                int id = (Integer) table.getValueAt(row, 0);
-                editPaket(id);
-            });
-
-            deleteBtn.addActionListener(e -> {
-                int row = table.getSelectedRow();
-                int id = (Integer) table.getValueAt(row, 0);
-                deletePaket(id);
-                deletePaket(id);
-            });
 
             selesaiBtn.addActionListener(e -> {
                 int row = table.getSelectedRow();
@@ -320,6 +323,13 @@ public final class Dashboard extends JFrame {
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value,
                 boolean isSelected, int row, int column) {
+            if ("kurir".equals(loggedInUser.getTugas().toLowerCase())) {
+                editBtn.setVisible(false);
+                deleteBtn.setVisible(false);
+            } else {
+                editBtn.setVisible(true);
+                deleteBtn.setVisible(true);
+            }
             return panel;
         }
 
