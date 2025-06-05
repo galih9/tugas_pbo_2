@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import com.galih.tugas_pbo_2.db.Database;
 import com.galih.tugas_pbo_2.model.Akun;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class AkunServiceImpl implements AkunService {
 
@@ -21,14 +22,17 @@ public class AkunServiceImpl implements AkunService {
     @Override
     public Akun login(String email, String password) {
         try (Connection conn = Database.getConnection()) {
-            String sql = "SELECT * FROM akun WHERE email = ? AND password = ?";
+            String sql = "SELECT * FROM akun WHERE email = ?";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, email);
-            stmt.setString(2, password);
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                return mapToAkun(rs);
+                Akun akun = mapToAkun(rs);
+                // Verify password using BCrypt
+                if (BCrypt.checkpw(password, akun.getPassword())) {
+                    return akun;
+                }
             }
             return null;
         } catch (SQLException e) {
@@ -47,12 +51,15 @@ public class AkunServiceImpl implements AkunService {
             // Generate unique ID
             String uniqueId = generateUniqueId(akun.getTugas());
             
+            // Hash the password
+            String hashedPassword = BCrypt.hashpw(akun.getPassword(), BCrypt.gensalt());
+
             String sql = "INSERT INTO akun (id, nama, email, password, tugas) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, uniqueId);
             stmt.setString(2, akun.getNama());
             stmt.setString(3, akun.getEmail());
-            stmt.setString(4, akun.getPassword());
+            stmt.setString(4, hashedPassword);  // Store hashed password
             stmt.setString(5, akun.getTugas());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {

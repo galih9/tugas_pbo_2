@@ -4,6 +4,7 @@ import java.awt.GridLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -19,7 +20,7 @@ import com.galih.tugas_pbo_2.service.AkunServiceImpl;
 public class RegisterFrame extends JDialog {
 
     private final JTextField namaField;
-    private final JTextField tugasField;
+    private final JComboBox<String> tugasComboBox;
     private final JTextField emailField;
     private final JPasswordField passwordField;
     private final JButton registerBtn;
@@ -37,8 +38,9 @@ public class RegisterFrame extends JDialog {
         namaField = new JTextField();
         panel.add(namaField);
         panel.add(new JLabel("Tugas:"));
-        tugasField = new JTextField();
-        panel.add(tugasField);
+        String[] roles = {"Admin", "Kurir", "Hub"};
+        tugasComboBox = new JComboBox<>(roles);
+        panel.add(tugasComboBox);
         panel.add(new JLabel("Email:"));
         emailField = new JTextField();
         panel.add(emailField);
@@ -57,10 +59,10 @@ public class RegisterFrame extends JDialog {
 
     private void register() {
         String nama = namaField.getText();
-        String tugas = tugasField.getText();
+        String tugas = (String) tugasComboBox.getSelectedItem();
         String email = emailField.getText();
         String password = new String(passwordField.getPassword());
-        if (nama.isEmpty() || tugas.isEmpty() || email.isEmpty() || password.isEmpty()) {
+        if (nama.isEmpty() || email.isEmpty() || password.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Semua field harus diisi!");
             return;
         }
