@@ -30,6 +30,7 @@ import com.galih.tugas_pbo_2.service.PaketServiceImpl;
 import jcharts.JpieCharts;
 
 public final class Dashboard extends JFrame {
+
     private final Akun loggedInUser;
     private final JTable table;
     private final DefaultTableModel tableModel;
@@ -73,6 +74,11 @@ public final class Dashboard extends JFrame {
     private JTable createTable() {
         JTable localTable = new JTable(tableModel);
         localTable.setRowHeight(40);
+
+        // Set preferred, minimum, and maximum width for the "ID" column
+        TableColumn idColumn = localTable.getColumnModel().getColumn(0);
+        idColumn.setPreferredWidth(30); // Set preferred width
+
         localTable.getColumnModel().getColumn(0).setMaxWidth(50);
         localTable.getColumnModel().getColumn(8).setMinWidth(150);
         localTable.getColumnModel().getColumn(5).setCellRenderer(createStatusRenderer());
@@ -96,10 +102,10 @@ public final class Dashboard extends JFrame {
 
     private JpieCharts createPieChart() {
         return new JpieCharts(
-            new int[]{190, 320},
-            StatusConstants.STATUS_LABELS,
-            new int[StatusConstants.STATUS_LABELS.length],
-            StatusColorUtil.STATUS_COLORS
+                new int[]{190, 320},
+                StatusConstants.STATUS_LABELS,
+                new int[StatusConstants.STATUS_LABELS.length],
+                StatusColorUtil.STATUS_COLORS
         );
     }
 
@@ -113,7 +119,7 @@ public final class Dashboard extends JFrame {
 
     private JPanel createButtonPanel() {
         JPanel buttonPanel = new JPanel(new BorderLayout());
-        
+
         // Left side buttons
         JPanel leftButtons = new JPanel(new FlowLayout(FlowLayout.LEFT));
         refreshBtn = new JButton("Refresh");
@@ -122,13 +128,13 @@ public final class Dashboard extends JFrame {
         tambahBtn.addActionListener(e -> showPaketForm());
         leftButtons.add(refreshBtn);
         leftButtons.add(tambahBtn);
-        
+
         // Right side logout button
         JPanel rightButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton logoutBtn = new JButton("Logout");
         logoutBtn.addActionListener(e -> logout());
         rightButtons.add(logoutBtn);
-        
+
         buttonPanel.add(leftButtons, BorderLayout.WEST);
         buttonPanel.add(rightButtons, BorderLayout.EAST);
         return buttonPanel;
@@ -139,7 +145,7 @@ public final class Dashboard extends JFrame {
                 "Apakah anda yakin ingin logout?",
                 "Konfirmasi Logout",
                 JOptionPane.YES_NO_OPTION);
-                
+
         if (confirm == JOptionPane.YES_OPTION) {
             SwingUtilities.invokeLater(() -> {
                 LoginFrame loginFrame = new LoginFrame();
@@ -259,6 +265,7 @@ public final class Dashboard extends JFrame {
     }
 
     class ButtonRenderer extends JPanel implements TableCellRenderer {
+
         private final JButton editBtn = new JButton("Edit");
         private final JButton deleteBtn = new JButton("Delete");
         private final JButton selesaiBtn = new JButton("Selesai");
@@ -278,6 +285,7 @@ public final class Dashboard extends JFrame {
     }
 
     class ButtonEditor extends AbstractCellEditor implements TableCellEditor {
+
         private final JPanel panel = new JPanel();
         private final JButton editBtn = new JButton("Edit");
         private final JButton deleteBtn = new JButton("Delete");

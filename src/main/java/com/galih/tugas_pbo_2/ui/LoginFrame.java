@@ -18,6 +18,7 @@ import com.galih.tugas_pbo_2.service.AkunService;
 import com.galih.tugas_pbo_2.service.AkunServiceImpl;
 
 public class LoginFrame extends JFrame {
+
     private final JTextField emailField;
     private final JPasswordField passwordField;
     private final JButton loginBtn, registerBtn;
@@ -58,7 +59,8 @@ public class LoginFrame extends JFrame {
         Akun akun = akunService.login(email, password);
         if (akun != null) {
             SwingUtilities.invokeLater(() -> {
-                Dashboard dashboard = new Dashboard(akun);  // Pass the logged-in user
+                Dashboard dashboard = new Dashboard(akun);
+                dashboard.setExtendedState(JFrame.MAXIMIZED_BOTH);
                 dashboard.setVisible(true);
                 dispose();
             });
