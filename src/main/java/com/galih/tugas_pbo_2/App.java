@@ -1,15 +1,14 @@
 package com.galih.tugas_pbo_2;
 
-import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
-import com.galih.tugas_pbo_2.ui.Dashboard;
+import com.galih.tugas_pbo_2.ui.LoginFrame;
 
 public class App {
-
     public static void main(String[] args) {
-        JFrame frame = new Dashboard();
-        // set maksimum window size
-        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        frame.setVisible(true);
+        SwingUtilities.invokeLater(() -> {
+            LoginFrame loginFrame = new LoginFrame();
+            loginFrame.setVisible(true);
+        });
     }
 }

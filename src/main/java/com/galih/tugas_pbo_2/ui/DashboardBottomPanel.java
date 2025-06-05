@@ -15,6 +15,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
+import com.galih.tugas_pbo_2.model.Akun;
+
 import jcharts.JpieCharts;
 
 public class DashboardBottomPanel extends JPanel {
@@ -22,6 +24,7 @@ public class DashboardBottomPanel extends JPanel {
     private final JLabel totalDataLabel;
     private final JLabel totalPaketLabel;
     private final JLabel totalProfitLabel;
+    private final JLabel greetingLabel;
 
     public DashboardBottomPanel(JpieCharts pieChart) {
         setLayout(new BorderLayout());
@@ -56,6 +59,13 @@ public class DashboardBottomPanel extends JPanel {
         rightPanel.add(Box.createVerticalStrut(18));
         rightPanel.add(totalProfitLabel);
 
+        // Add greeting label
+        greetingLabel = new JLabel("");
+        greetingLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        greetingLabel.setForeground(new Color(0x1976D2));
+        rightPanel.add(Box.createVerticalStrut(20));
+        rightPanel.add(greetingLabel);
+
         add(leftPanel, BorderLayout.WEST);
         add(rightPanel, BorderLayout.CENTER);
     }
@@ -79,5 +89,13 @@ public class DashboardBottomPanel extends JPanel {
         totalDataLabel.setText("  Total Data: " + totalData);
         totalPaketLabel.setText("  Total Paket: " + totalPaket);
         totalProfitLabel.setText("  Total Profit: Rp " + totalProfit);
+    }
+
+    public void setUserInfo(Akun user) {
+        String greeting = String.format("Welcome, %s (%s)", 
+            user.getNama(), 
+            user.getTugas()
+        );
+        greetingLabel.setText(greeting);
     }
 }

@@ -14,6 +14,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -21,6 +22,7 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
+import com.galih.tugas_pbo_2.model.Akun;
 import com.galih.tugas_pbo_2.model.Paket;
 import com.galih.tugas_pbo_2.service.PaketService;
 import com.galih.tugas_pbo_2.service.PaketServiceImpl;
@@ -28,6 +30,7 @@ import com.galih.tugas_pbo_2.service.PaketServiceImpl;
 import jcharts.JpieCharts;
 
 public final class Dashboard extends JFrame {
+    private final Akun loggedInUser;
     private final JTable table;
     private final DefaultTableModel tableModel;
     private final PaketService paketService;
@@ -36,8 +39,9 @@ public final class Dashboard extends JFrame {
     private final JpieCharts pie;
     private final DashboardBottomPanel bottomPanel;
 
-    public Dashboard() {
-        setTitle("Dashboard Paket");
+    public Dashboard(Akun user) {
+        this.loggedInUser = user;
+        setTitle("Dashboard Paket - " + user.getTugas());
         setSize(800, 600);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -103,18 +107,46 @@ public final class Dashboard extends JFrame {
         JPanel tablePanel = new JPanel(new BorderLayout());
         tablePanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         tablePanel.add(new JScrollPane(table), BorderLayout.CENTER);
+        bottomPanel.setUserInfo(loggedInUser);  // Add this line
         return tablePanel;
     }
 
     private JPanel createButtonPanel() {
-        JPanel buttonPanel = new JPanel();
+        JPanel buttonPanel = new JPanel(new BorderLayout());
+        
+        // Left side buttons
+        JPanel leftButtons = new JPanel(new FlowLayout(FlowLayout.LEFT));
         refreshBtn = new JButton("Refresh");
         tambahBtn = new JButton("Tambah Paket");
         refreshBtn.addActionListener(e -> refreshData());
         tambahBtn.addActionListener(e -> showPaketForm());
-        buttonPanel.add(refreshBtn);
-        buttonPanel.add(tambahBtn);
+        leftButtons.add(refreshBtn);
+        leftButtons.add(tambahBtn);
+        
+        // Right side logout button
+        JPanel rightButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton logoutBtn = new JButton("Logout");
+        logoutBtn.addActionListener(e -> logout());
+        rightButtons.add(logoutBtn);
+        
+        buttonPanel.add(leftButtons, BorderLayout.WEST);
+        buttonPanel.add(rightButtons, BorderLayout.EAST);
         return buttonPanel;
+    }
+
+    private void logout() {
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Apakah anda yakin ingin logout?",
+                "Konfirmasi Logout",
+                JOptionPane.YES_NO_OPTION);
+                
+        if (confirm == JOptionPane.YES_OPTION) {
+            SwingUtilities.invokeLater(() -> {
+                LoginFrame loginFrame = new LoginFrame();
+                loginFrame.setVisible(true);
+                dispose();
+            });
+        }
     }
 
     public void refreshData() {
