@@ -122,6 +122,8 @@ public final class Dashboard extends JFrame {
         try {
             List<Paket> pakets = paketService.getAllPakets();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(java.time.ZoneId.systemDefault());
+            int totalProfit = 0;
+            int totalPaket = pakets.size();
             for (Paket paket : pakets) {
                 tableModel.addRow(new Object[]{
                     paket.getId(),
@@ -134,8 +136,16 @@ public final class Dashboard extends JFrame {
                     paket.getTanggalKeluar() != null ? formatter.format(paket.getTanggalKeluar()) : "",
                     "actions"
                 });
+                // Calculate profit
+                if ("Reguler".equals(paket.getPengiriman().getMetode())) {
+                    totalProfit += 10000;
+                } else if ("Express".equals(paket.getPengiriman().getMetode())) {
+                    totalProfit += 20000;
+                }
             }
             pie.updateData(countPackagesByStatus());
+            // Update info panel
+            bottomPanel.updateInfo(tableModel.getRowCount(), totalPaket, totalProfit);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error loading data: " + e.getMessage());
         }
@@ -254,6 +264,7 @@ public final class Dashboard extends JFrame {
             deleteBtn.addActionListener(e -> {
                 int row = table.getSelectedRow();
                 int id = (Integer) table.getValueAt(row, 0);
+                deletePaket(id);
                 deletePaket(id);
             });
 
