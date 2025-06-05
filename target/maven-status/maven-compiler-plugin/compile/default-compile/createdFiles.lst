@@ -11,6 +11,7 @@ jcharts/JtimeSeries$MyGraphics.class
 com/galih/tugas_pbo_2/model/ExpressPengiriman.class
 com/galih/tugas_pbo_2/service/AkunService.class
 jcharts/JpieCharts.class
+com/galih/tugas_pbo_2/util/ExcelExporter.class
 com/galih/tugas_pbo_2/ui/LoginFrame.class
 jcharts/JtimeSeries.class
 com/galih/tugas_pbo_2/App.class

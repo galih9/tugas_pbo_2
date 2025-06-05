@@ -4,11 +4,15 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -16,6 +20,8 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
 import com.galih.tugas_pbo_2.model.Akun;
+import com.galih.tugas_pbo_2.model.Paket;
+import com.galih.tugas_pbo_2.util.ExcelExporter;
 
 import jcharts.JpieCharts;
 
@@ -25,6 +31,7 @@ public class DashboardBottomPanel extends JPanel {
     private final JLabel totalPaketLabel;
     private final JLabel totalProfitLabel;
     private final JLabel greetingLabel;
+    private List<Paket> pakets;
 
     public DashboardBottomPanel(JpieCharts pieChart) {
         setLayout(new BorderLayout());
@@ -66,6 +73,14 @@ public class DashboardBottomPanel extends JPanel {
         rightPanel.add(Box.createVerticalStrut(20));
         rightPanel.add(greetingLabel);
 
+        // Add Export to Excel button
+        JButton exportButton = new JButton("Export to Excel");
+        exportButton.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        exportButton.setAlignmentX(LEFT_ALIGNMENT);
+        exportButton.addActionListener(e -> exportToExcel());
+        rightPanel.add(Box.createVerticalStrut(20));
+        rightPanel.add(exportButton);
+
         add(leftPanel, BorderLayout.WEST);
         add(rightPanel, BorderLayout.CENTER);
     }
@@ -97,5 +112,36 @@ public class DashboardBottomPanel extends JPanel {
             user.getTugas()
         );
         greetingLabel.setText(greeting);
+    }
+
+    public void setPaketData(List<Paket> pakets) {
+        this.pakets = pakets;
+    }
+
+    private void exportToExcel() {
+        if (pakets == null || pakets.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No paket data to export.", "Export Failed", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Save Excel File");
+        fileChooser.setSelectedFile(new java.io.File("paket_data.xlsx"));
+
+        int userSelection = fileChooser.showSaveDialog(this);
+
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            String filePath = fileChooser.getSelectedFile().getAbsolutePath();
+            if (!filePath.endsWith(".xlsx")) {
+                filePath += ".xlsx";
+            }
+
+            try {
+                ExcelExporter.exportToExcel(pakets, filePath);
+                JOptionPane.showMessageDialog(this, "Data exported successfully to " + filePath, "Export Success", JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Failed to export data: " + ex.getMessage(), "Export Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 }

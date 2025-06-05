@@ -153,7 +153,7 @@ public final class Dashboard extends JFrame {
         tableModel.setRowCount(0);
         try {
             List<Paket> pakets = paketService.getAllPakets();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(java.time.ZoneId.systemDefault());
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy").withZone(java.time.ZoneId.systemDefault());
             int totalProfit = 0;
             int totalPaket = pakets.size();
             for (Paket paket : pakets) {
@@ -177,6 +177,8 @@ public final class Dashboard extends JFrame {
             }
             pie.updateData(countPackagesByStatus());
             // Update info panel
+
+            bottomPanel.setPaketData(pakets); // Pass the list of Paket objects to the bottom panel
             bottomPanel.updateInfo(tableModel.getRowCount(), totalPaket, totalProfit);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error loading data: " + e.getMessage());
